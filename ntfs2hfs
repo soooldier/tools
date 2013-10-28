@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+DEVICEPATH="/Volumes"
+# BASIC TOOLS
+msg() {
+    printf '%b\n' "$1" >&2
+}
+
+success() {
+    msg "\e[32m[✔]\e[0m ${1}${2}"
+}
+
+error() {
+    msg "\e[31m[✘]\e[0m ${1}${2}"
+    exit 1
+}
+#
+declare -a DEVICES
+for i in `ls $DEVICEPATH`
+do
+    if [[ -d $DEVICEPATH/$i ]]
+    then
+        DEVICES[${#DEVICES[@]}]=$DEVICEPATH/$i
+    fi
+done
+if [ ${#DEVICES[@]} -eq '0' ]; then
+    error "No device found!"
+fi
+DEVICES[${#DEVICES[@]}]="exit"
+PS3="Select a device for operate:"
+select i in ${DEVICES[*]}
+do
+    case $i in
+        exit)
+            exit
+            ;;
+        *)
+            partition=`diskutil info ${i} | grep "Device Node" | awk '{print $3}'`
+            # eject device
+            ret=`hdiutil eject ${partition} >/dev/null 2>&1`
+            if [ ! $? -eq '0' ]; then
+                error "Device '${i}' eject error, please check disk exists!"
+                exit
+            fi
+            sudo mkdir $DEVICEPATH/MYNTFSDISK
+            sudo mount_ntfs -o rw ${partition} $DEVICEPATH/MYNTFSDISK
+            success "Device mount at '${DEVICEPATH}/MYNTFSDISK' success!"
+            exit
+            ;;
+    esac
+done
