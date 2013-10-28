@@ -51,7 +51,7 @@ do
                         ;;
                     mount)
                         sudo mkdir $DEVICEPATH/MYNTFSDISK
-                        sudo mount_ntfs -o rw ${partition} $DEVICEPATH/MYNTFSDISK
+                        sudo mount_ntfs -o rw,nobrowse ${partition} $DEVICEPATH/MYNTFSDISK
                         success "Mount '${DEVICEPATH}/MYNTFSDISK' success!"
                         exit
                         ;;
