@@ -41,10 +41,24 @@ do
                 error "Device '${i}' eject error, please check disk exists!"
                 exit
             fi
-            sudo mkdir $DEVICEPATH/MYNTFSDISK
-            sudo mount_ntfs -o rw ${partition} $DEVICEPATH/MYNTFSDISK
-            success "Device mount at '${DEVICEPATH}/MYNTFSDISK' success!"
-            exit
-            ;;
+            PS3="Eject or mount?"
+            select j in eject mount
+            do
+                case $j in
+                    eject)
+                        success "Eject '${DEVICEPATH}/MYNTFSDISK' success!"
+                        exit
+                        ;;
+                    mount)
+                        sudo mkdir $DEVICEPATH/MYNTFSDISK
+                        sudo mount_ntfs -o rw ${partition} $DEVICEPATH/MYNTFSDISK
+                        success "Mount '${DEVICEPATH}/MYNTFSDISK' success!"
+                        exit
+                        ;;
+                    *)
+                        exit
+                        ;;
+                esac
+            done
     esac
 done
